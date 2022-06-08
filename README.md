@@ -51,7 +51,7 @@ More importantly, it supports functions like NSTimer, just set the count of repe
 If you need to actively remove:
 
 ```objective-c
-    self.teyemdWithFlag(<#NSString * _Nonnull flag#>).remove();
+    self.removeTeyemdWithFlag(<#NSString * _Nonnull flag#>);
 ```
 
 ## Author
