@@ -108,11 +108,22 @@
 - (void (^)(void (^ _Nonnull)(void)))withHandler {
     return ^(void (^handler)(void)) {
         self.handler = handler;
-        if (self.interval > 0.f) {
-            if (self.flag == nil || self.flag.length == 0) {
-                self.flag = NSUUID.UUID.UUIDString;
+        // Preset a random value when the flag value does not exist.
+        if (self.flag == nil || self.flag.length == 0) {
+            self.flag = NSUUID.UUID.UUIDString;
+        }
+        if (self.interval > 0.f || self.delay > 0.f) {
+            // Settings when used for countdown timer.
+            if (self.interval > 0.f && self.count <= 1 && self.delay <= 0.f) {
+                self.delay = self.interval;
+            }
+            // Use delays instead of time intervals.
+            if (self.interval <= 0.f && self.delay > 0.f) {
+                self.interval = self.delay;
             }
             dispatch_resume(self.timer);
+        } else {
+            self.target.removeTeyemdWithFlag(self.flag);
         }
     };
 }
