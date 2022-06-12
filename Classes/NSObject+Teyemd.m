@@ -18,21 +18,12 @@
 
 @implementation NSObject (Teyemd)
 
+#pragma mark - Public property methods
+
 - (Teyemd *)teyemd {
     Teyemd *tey = [[Teyemd alloc] initWithTarget:self];
     [self.teyemds addObject:tey];
     return tey;
-}
-
-- (NSMutableArray<Teyemd *> *)teyemds {
-    @synchronized (self) {
-        NSMutableArray<Teyemd *> *teyemds = objc_getAssociatedObject(self, @selector(teyemds));
-        if (teyemds == nil) {
-            teyemds = [NSMutableArray array];
-            objc_setAssociatedObject(self, @selector(teyemds), teyemds, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-        }
-        return teyemds;
-    }
 }
 
 - (Teyemd * _Nonnull (^)(NSTimeInterval))teyemdWithInterval {
@@ -43,19 +34,8 @@
 
 - (Teyemd * _Nonnull (^)(NSString * _Nonnull))teyemdWithFlag {
     return ^(NSString *flag) {
-         __block Teyemd *teyemd = nil;
-        // First query from the array associated with itself.
-        [self.teyemds.copy enumerateObjectsUsingBlock:^(Teyemd * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            if (obj.flag != nil && obj.flag.length > 0 && [obj.flag isEqualToString:flag]) {
-                teyemd = obj;
-                *stop = YES;
-            }
-        }];
-        // Otherwise recreate and return.
-        if (teyemd == nil) {
-            teyemd = self.teyemd.withFlag(flag);
-        }
-        return teyemd;
+        self.removeTeyemdWithFlag(flag);
+        return self.teyemd.withFlag(flag);
     };
 }
 
@@ -74,6 +54,19 @@
            [self.teyemds removeObject:teyemd];
        }
     };
+}
+
+#pragma mark - Propertys - runtime
+
+- (NSMutableArray<Teyemd *> *)teyemds {
+    @synchronized (self) {
+        NSMutableArray<Teyemd *> *teyemds = objc_getAssociatedObject(self, @selector(teyemds));
+        if (teyemds == nil) {
+            teyemds = [NSMutableArray array];
+            objc_setAssociatedObject(self, @selector(teyemds), teyemds, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
+        return teyemds;
+    }
 }
 
 @end

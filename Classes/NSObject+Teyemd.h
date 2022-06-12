@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// This property will return a Teyemd instance with the set interval.
 @property (nonatomic, copy, readonly) Teyemd *(^teyemdWithInterval)(NSTimeInterval interval);
 
-/// This property will return a Teyemd instance, if an instance of this flag exists, it will return the instance, if not, it will create one.
+/// This property will return a Teyemd instance. If an instance of this flag exists, It will be removed. Anyway, it returns a new instance with the flag set.
 @property (nonatomic, copy, readonly) Teyemd *(^teyemdWithFlag)(NSString *flag);
 
 /// Remove if needed, usually you don't need to do this, it follows the lifetime of the target object itself.

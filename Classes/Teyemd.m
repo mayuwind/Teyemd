@@ -8,12 +8,6 @@
 #import "Teyemd.h"
 #import "NSObject+Teyemd.h"
 
-@interface NSObject ()
-
-@property (nonatomic, strong, readonly) NSMutableArray<Teyemd *> *teyemds;
-
-@end
-
 @interface Teyemd ()
 
 /// Flag value
@@ -44,6 +38,8 @@
 
 @implementation Teyemd
 
+#pragma mark - Initialization method
+
 - (instancetype)initWithTarget:(NSObject *)target {
     if (self = [super init]) {
         _target = target;
@@ -51,16 +47,21 @@
     return self;
 }
 
+#pragma mark - Lifecycle cleanup
+
 - (void)dealloc {
     [self stopTimer];
 }
 
+/// Stop and clean up the timer.
 - (void)stopTimer {
     if (_timer != nil) {
         dispatch_source_cancel(self.timer);
         self.timer = nil;
     }
 }
+
+#pragma mark - Public property methods
 
 - (Teyemd * _Nonnull (^)(NSString * _Nonnull))withFlag {
     return ^(NSString *flag) {
@@ -107,26 +108,22 @@
 - (void (^)(void (^ _Nonnull)(void)))withHandler {
     return ^(void (^handler)(void)) {
         self.handler = handler;
-        if (self.flag != nil && self.flag.length > 0) {
-            Teyemd *teyemd = self.target.teyemdWithFlag(self.flag);
-            if (teyemd && teyemd != self) {
-                [self.target.teyemds removeObject:teyemd];
-            }
-        }
         if (self.interval > 0.f) {
+            if (self.flag == nil || self.flag.length == 0) {
+                self.flag = NSUUID.UUID.UUIDString;
+            }
             dispatch_resume(self.timer);
         }
     };
 }
 
+#pragma mark - Propertys
+
 - (dispatch_source_t)timer {
     if (!_timer) {
         dispatch_queue_t queue = self.isAsync ? dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) : dispatch_get_main_queue();
         _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
-        dispatch_time_t start = dispatch_time(DISPATCH_TIME_NOW, self.delay);
-        if (self.isWallTime) {
-            start = dispatch_walltime(DISPATCH_TIME_NOW, self.delay);
-        }
+        dispatch_time_t start = self.isWallTime ? dispatch_walltime(DISPATCH_TIME_NOW, self.delay) : dispatch_time(DISPATCH_TIME_NOW, self.delay);
         dispatch_source_set_timer(_timer, start, self.interval, 0);
         __weak typeof(self) weakSelf = self;
         dispatch_source_set_event_handler(_timer, ^{
@@ -134,7 +131,7 @@
             self.count -= 1;
             if (self.count <= 0) {
                 [self stopTimer];
-                [self.target.teyemds removeObject:self];
+                self.target.removeTeyemdWithFlag(self.flag);
             }
             if (self.handler) {
                 self.handler();

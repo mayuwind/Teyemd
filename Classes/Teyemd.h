@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Optional configuration actions
 
-/// incoming flag value.
+/// incoming flag value. The flag value will always be there, if not created, it will be generated from the UUID.
 @property (nonatomic, copy, readonly) NSString *flag;
 
 /// pass in flag value.
@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Final execution
 
-/// You always need to pass in this value for the method to wrap and the timer to start running.
+/// You always need to pass in this value for the method to wrap and the timer to start running. All parameters passed here will end, you cannot modify.
 @property (nonatomic, copy, readonly) void (^withHandler)(void (^handler)(void));
 
 @end
