@@ -21,6 +21,12 @@ it, simply add the following line to your Podfile:
 pod 'Teyemd'
 ```
 
+And Import a header file:
+
+```objective-c
+#import "NSObject+Teyemd.h"
+```
+
 ## Usage
 
 Usually if you need a countdown, you would use the following code:
